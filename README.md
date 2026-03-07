@@ -1,6 +1,10 @@
 # Secure Storage
 Secure storage is a rust library that adds key-value storage with encryption
 
+> ⚠️ Experimental
+> 
+> **This library is still in experimental phase!**
+
 ## How to use
 
 - ### As Rust Crate
