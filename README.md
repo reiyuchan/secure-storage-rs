@@ -2,6 +2,14 @@
 Secure storage is a rust library that adds key-value storage with encryption
 
 ## How to use
+
+- ### As Rust Crate
+```sh
+cargo add secure_storage --git https://github.com/reiyuchan/secure-storage-rs.git
+```
+
+- ### Binding generation
+
 First clone the repo
 ```sh
 git clone https://github.com/reiyuchan/secure-storage-rs.git
