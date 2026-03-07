@@ -1,0 +1,24 @@
+[package]
+name = "secure-storage"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[lib]
+name = "secure_storage"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+aes-gcm = "0.10"                # AES-GCM encryption
+rand = "0.8"                    # Secure random nonces
+zeroize = "1.7"                 # Wipe keys in memory
+sled = "0.34.7"                 # Embedded key-value store
+uniffi = {version = "0.31.0", features=["cli"]}               # Generate bindings
+anyhow = "1.0.102"              # error handling
+thiserror = "2"              # error handling
+
+[build-dependencies]
+uniffi = { version = "0.27", features = ["build"] }
