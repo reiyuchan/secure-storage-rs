@@ -1,10 +1,10 @@
 [package]
-name = "secure-storage"
+name = "secure_storage"
 version = "0.1.0"
 edition = "2024"
 
 [[bin]]
-name = "uniffi-bindgen"
+name = "uniffi_bindgen"
 path = "uniffi-bindgen.rs"
 
 [lib]

@@ -23,7 +23,7 @@ impl SecureStorage {
     #[uniffi::constructor]
     pub fn new() -> Result<Arc<Self>> {
         let storage = storage::Storage::new()?;
-        let key: Key<Aes256Gcm> = Self::get_or_generate_master_key(&storage.db)?;
+        let key: Key<Aes256Gcm> = Self::get_or_generate_master_key()?;
         Ok(Arc::new(Self { storage, key }))
     }
 
@@ -53,8 +53,8 @@ impl SecureStorage {
 }
 
 impl SecureStorage {
-    fn get_or_generate_master_key(db: &Db) -> Result<Key<Aes256Gcm>> {
-        let entry = Entry::new("my-service", "my-name").map_err(|e| anyhow!("{:?}", e))?;
+    fn get_or_generate_master_key() -> Result<Key<Aes256Gcm>> {
+        let entry = Entry::new("secure_storage", "secure_storage").map_err(|e| anyhow!("{:?}", e))?;
         let key = match entry.get_secret() {
             Ok(key) if !key.is_empty() => key,
             _ => {
