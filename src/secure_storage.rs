@@ -4,7 +4,6 @@ use aes_gcm::{Aes256Gcm, Key};
 use anyhow::anyhow;
 use keyring::Entry;
 use rand::RngCore;
-use sled::Db;
 
 use crate::{
     core,
@@ -21,18 +20,21 @@ pub struct SecureStorage {
 #[uniffi::export]
 impl SecureStorage {
     #[uniffi::constructor]
-    pub fn new() -> Result<Arc<Self>> {
-        let storage = storage::Storage::new()?;
+    /// initializes the secure storage and opens the db
+    pub fn new(path: &str) -> Result<Arc<Self>> {
+        let storage = storage::Storage::new(path)?;
         let key: Key<Aes256Gcm> = Self::get_or_generate_master_key()?;
         Ok(Arc::new(Self { storage, key }))
     }
 
+    /// sets a key for a new value
     pub fn set(&self, key: &str, value: &[u8]) -> error::Result<()> {
         let cipher_text = core::encrypt(value, &self.key)?;
         self.storage.set(key, &cipher_text)?;
         Ok(())
     }
 
+    /// gets a value for a key
     pub fn get(&self, key: &str) -> Result<Vec<u8>> {
         let value = self
             .storage
@@ -41,11 +43,13 @@ impl SecureStorage {
         Ok(core::decrypt(&value, &self.key.to_vec())?)
     }
 
+    /// deletes a key for a value
     pub fn delete(&self, key: &str) -> Result<()> {
         self.storage.delete(key)?;
         Ok(())
     }
 
+    /// clears all storage for key-value pairs
     pub fn clear_storage(&self) -> Result<()> {
         self.storage.clear_storage()?;
         Ok(())
@@ -54,7 +58,8 @@ impl SecureStorage {
 
 impl SecureStorage {
     fn get_or_generate_master_key() -> Result<Key<Aes256Gcm>> {
-        let entry = Entry::new("secure_storage", "secure_storage").map_err(|e| anyhow!("{:?}", e))?;
+        let entry =
+            Entry::new("secure_storage", "secure_storage").map_err(|e| anyhow!("{:?}", e))?;
         let key = match entry.get_secret() {
             Ok(key) if !key.is_empty() => key,
             _ => {

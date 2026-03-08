@@ -1,14 +1,16 @@
 use anyhow::Result;
 use sled::Db;
-use uniffi::deps::anyhow::Ok;
 
 pub struct Storage {
     pub db: Db,
 }
 
 impl Storage {
-    pub fn new() -> Result<Self> {
-        let db = sled::open("secure_storage_db")?;
+    pub fn new<P>(path: P) -> Result<Self>
+    where
+        P: AsRef<std::path::Path>,
+    {
+        let db = sled::open(path)?;
         Ok(Self { db })
     }
 
@@ -26,8 +28,9 @@ impl Storage {
     }
 
     pub fn delete(&self, key: &str) -> Result<()> {
-        self.db.remove(key)?;
-        self.db.flush()?;
+        let tree = self.db.open_tree("data")?;
+        tree.remove(key)?;
+        tree.flush()?;
         Ok(())
     }
 
