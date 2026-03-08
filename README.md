@@ -12,6 +12,17 @@ Secure storage is a rust library that adds key-value storage with encryption
 cargo add secure_storage --git https://github.com/reiyuchan/secure-storage-rs.git
 ```
 
+```rs
+use secure_storage::SecureStorage;
+use anyhow::Result;
+
+fn main() -> Result<()> {
+    let db = SecureStorage::new("db")?;
+        db.set("my_key","my_value".as_bytes())?;
+    let value: Vec<u8> = db.get("my_key")?;
+}
+```
+
 - ### Binding generation
 
 First clone the repo
