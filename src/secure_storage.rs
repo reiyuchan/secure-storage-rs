@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use aes_gcm::{Aes256Gcm, Key};
 use anyhow::anyhow;
+use keyring::Entry;
 use rand::RngCore;
 use sled::Db;
 
@@ -53,16 +54,13 @@ impl SecureStorage {
 
 impl SecureStorage {
     fn get_or_generate_master_key(db: &Db) -> Result<Key<Aes256Gcm>> {
-        let tree = db.open_tree("master_key").map_err(|e| anyhow!("{:?}", e))?;
-        let key = match tree.get("key").map_err(|e| anyhow!("{:?}", e))? {
-            Some(key) if !key.is_empty() => key,
+        let entry = Entry::new("my-service", "my-name").map_err(|e| anyhow!("{:?}", e))?;
+        let key = match entry.get_secret() {
+            Ok(key) if !key.is_empty() => key,
             _ => {
                 let mut new_key = [0u8; 32];
                 rand::thread_rng().fill_bytes(&mut new_key);
-
-                tree.insert("key", &new_key)
-                    .map_err(|e| anyhow!("{:?}", e))?;
-                tree.flush().map_err(|e| anyhow!("{:?}", e))?;
+                entry.set_secret(&new_key).map_err(|e| anyhow!("{:?}", e))?;
 
                 new_key.to_vec().into()
             }
